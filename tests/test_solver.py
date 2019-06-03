@@ -8,13 +8,20 @@ from codeword.grid import Grid
 class TestSolver(unittest.TestCase):
     def test_populates_grid_from_map(self):
         word_list = {
+            'A',
             'ARE',
+            'AREA',
+            'OR',
             'ORE',
+            'RARE',
+            'REAR',
+            'ROAR',
         }
         initial_grid = Grid([
             [None, 1, None],
             [2, 3, 4],
             [None, 4, None],
+            [None, 1, None],
         ])
         initial_key = CodeMap({3: 'R', 4: 'E'})
 
@@ -25,11 +32,13 @@ class TestSolver(unittest.TestCase):
             [None, 'A', None],
             ['O', 'R', 'E'],
             [None, 'E', None],
+            [None, 'A', None],
         ]))
 
     word_list = {
         'A',
         'AS',
+        'ASS',
         'AT',
         'I',
         'IS',
@@ -66,6 +75,12 @@ class TestSolver(unittest.TestCase):
     def test_word_matches_1_X_false(self):
         self.assertFalse(solver.word_matches(('X',), 'Y'))
 
+    def test_word_matches_12_XX_false(self):
+        self.assertFalse(solver.word_matches((1, 2), 'XX'))
+
+    def test_word_matches_11_XY_false(self):
+        self.assertFalse(solver.word_matches((1, 1), 'XY'))
+
     def test_find_possible_words(self):
         sequences = {
             ('A',),
@@ -82,3 +97,14 @@ class TestSolver(unittest.TestCase):
             'AT',
             'SAT',
         })
+
+    def test_find_possible_words_no_inconsistency(self):
+        sequences = {
+            (1, 2, 3),
+        }
+
+        word_list = {'AAA', 'AAB', 'ABB', 'ABA', 'ABC', 'ACB', 'ACA', 'ACC'}
+
+        words = solver.find_possible_words(sequences, word_list)
+
+        self.assertEqual(words, {'ABC', 'ACB'})

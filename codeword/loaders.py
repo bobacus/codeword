@@ -26,4 +26,4 @@ def load_map(filename: str):
 
 def load_word_list(filename: str):
     word_list = file.load_csv(filename)
-    return set(word_list)
+    return set([word[0].upper() for word in word_list])

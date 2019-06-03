@@ -34,4 +34,4 @@ class Grid:
         cursor = Cursor(transpose(self.cells))
         result |= cursor.find_sequences()
 
-        return result
+        return list(result)

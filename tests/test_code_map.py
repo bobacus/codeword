@@ -44,3 +44,29 @@ class TestCodeMap(unittest.TestCase):
         code_map = CodeMap({9: 'A'})
 
         self.assertEqual(str(code_map), '........A' + ('.' * 17))
+
+    def test_infer_new_key_from_word(self):
+        code_map = CodeMap({9: 'A'})
+        sequence = ('A', 3, 4)
+        word = 'ARE'
+
+        result = code_map.infer_new_key_from_word(sequence, word)
+
+        self.assertEqual(result, CodeMap({3: 'R', 4: 'E', 9: 'A'}))
+
+    def test_infer_new_key_from_word_inconsistent(self):
+        code_map = CodeMap({9: 'A'})
+        sequence = ('A', 3, 4)
+        word = 'ASS'
+
+        with self.assertRaises(ValueError):
+            code_map.infer_new_key_from_word(sequence, word)
+
+    def test_infer_new_key_from_word_4(self):
+        code_map = CodeMap({2: 'O', 3: 'R', 4: 'E'})
+        sequence = (1, 'R', 'E', 1)
+        word = 'AREA'
+
+        result = code_map.infer_new_key_from_word(sequence, word)
+
+        self.assertEqual(result, CodeMap({1: 'A', 2: 'O', 3: 'R', 4: 'E'}))

@@ -68,27 +68,27 @@ class TestGrid(unittest.TestCase):
 
     def test_sequences_0(self):
         grid = Grid([[]])
-        self.assertEqual(grid.sequences(), set())
+        self.assertEqual(grid.sequences(), [])
 
     def test_sequences_1(self):
         grid = Grid([['A']])
-        self.assertEqual(grid.sequences(), {('A',)})
+        self.assertEqual(grid.sequences(), [('A',)])
 
     def test_sequences_1_black(self):
         grid = Grid([[None]])
-        self.assertEqual(grid.sequences(), set())
+        self.assertEqual(grid.sequences(), [])
 
     def test_sequences_2_ad(self):
         grid = Grid([['A', None], [None, 'D']])
-        self.assertEqual(grid.sequences(), {('A',), ('D',)})
+        self.assertEqual(set(grid.sequences()), {('A',), ('D',)})
 
     def test_sequences_2_bc(self):
         grid = Grid([[None, 'B'], ['C', None]])
-        self.assertEqual(grid.sequences(), {('B',), ('C',)})
+        self.assertEqual(set(grid.sequences()), {('B',), ('C',)})
 
     def test_sequences_2_abc(self):
         grid = Grid([['A', 'B'], ['C', None]])
-        self.assertEqual(grid.sequences(), {('A', 'B'), ('A', 'C')})
+        self.assertEqual(set(grid.sequences()), {('A', 'B'), ('A', 'C')})
 
 
 class TestTranspose(unittest.TestCase):
