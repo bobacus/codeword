@@ -1,5 +1,5 @@
 class CodeMap:
-    def __init__(self, key):
+    def __init__(self, key: dict):
         self.key = key
 
     def __eq__(self, other):

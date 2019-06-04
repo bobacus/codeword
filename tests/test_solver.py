@@ -58,7 +58,7 @@ class TestSolver(unittest.TestCase):
             (1, 3),
         ]
 
-        result = solver.solve_sequences(key, sequences, self.word_list)
+        result = solver.solve_sequences(key, sequences, {s: self.word_list for s in sequences})
 
         self.assertEqual(result, CodeMap({
             1: 'A',
@@ -92,35 +92,33 @@ class TestSolver(unittest.TestCase):
             ('A', 3),
         ]
 
-        words = solver.find_possible_words(sequences, self.word_list)
+        words = solver.find_possible_words(list(zip(sequences, [self.word_list for _ in sequences])))
 
         self.assertEqual(words, {
-            'A',
-            'AS',
-            'AT',
-            'SAT',
+            sequences[0]: {'A'},
+            sequences[1]: {'AS', 'AT'},
+            sequences[2]: {'SAT'},
+            sequences[3]: {'AS', 'AT'},
         })
 
     def test_find_possible_words_no_inconsistency(self):
-        sequences = [
-            (1, 2, 3),
+        sequences_word_lists = [
+            ((1, 2, 3), {'AAA', 'AAB', 'ABB', 'ABA', 'ABC', 'ACB', 'ACA', 'ACC'}),
         ]
 
-        word_list = {'AAA', 'AAB', 'ABB', 'ABA', 'ABC', 'ACB', 'ACA', 'ACC'}
+        words = solver.find_possible_words(sequences_word_lists)
 
-        words = solver.find_possible_words(sequences, word_list)
-
-        self.assertEqual(words, {'ABC', 'ACB'})
+        self.assertEqual(words, {
+            sequences_word_lists[0][0]: {'ABC', 'ACB'},
+        })
 
     def test_find_possible_words_error_if_no_matching_word_for_sequence(self):
         sequences = [
-            (1, 2, 1),
+            ((1, 2, 1), {'CAT'}),
         ]
 
-        word_list = {'CAT'}
-
         with self.assertRaises(ValueError):
-            solver.find_possible_words(sequences, word_list)
+            solver.find_possible_words(sequences)
 
     def test_sort_sequences_0(self):
         sequences = []
@@ -197,3 +195,31 @@ class TestSolver(unittest.TestCase):
         result = solver.sort_sequences(sequences)
 
         self.assertEqual(result, [(2, 2), (2, 1)])
+
+    def test_hash_sequence(self):
+        sequence = ('A', 1)
+
+        self.assertEqual(solver.hash_sequence(sequence), hash('A.'))
+
+    def test_hash_function_sequence(self):
+        sequence = ('A', 1)
+
+        fn = solver.hash_function(sequence)
+
+        self.assertEqual(fn(sequence), hash('A.'))
+
+    def test_hash_function_word(self):
+        sequence = ('A', 1)
+        word = 'AB'
+
+        fn = solver.hash_function(sequence)
+
+        self.assertEqual(fn(word), hash('A.'))
+
+    def test_hash_function_zero_for_differing_lengths(self):
+        sequence = ('A', 1)
+        word = 'B'
+
+        fn = solver.hash_function(sequence)
+
+        self.assertEqual(fn(word), 0)
