@@ -51,12 +51,12 @@ class TestSolver(unittest.TestCase):
 
     def test_solve_sequences(self):
         key = CodeMap({1: 'A'})
-        sequences = {
+        sequences = [
             (1,),
             (1, 2),
             (3, 1, 2),
             (1, 3),
-        }
+        ]
 
         result = solver.solve_sequences(key, sequences, self.word_list)
 
@@ -81,13 +81,16 @@ class TestSolver(unittest.TestCase):
     def test_word_matches_11_XY_false(self):
         self.assertFalse(solver.word_matches((1, 1), 'XY'))
 
+    def test_word_matches_A1_AA_false(self):
+        self.assertFalse(solver.word_matches(('A', 1), 'AA'))
+
     def test_find_possible_words(self):
-        sequences = {
+        sequences = [
             ('A',),
             ('A', 2),
             (3, 'A', 2),
             ('A', 3),
-        }
+        ]
 
         words = solver.find_possible_words(sequences, self.word_list)
 
@@ -99,12 +102,98 @@ class TestSolver(unittest.TestCase):
         })
 
     def test_find_possible_words_no_inconsistency(self):
-        sequences = {
+        sequences = [
             (1, 2, 3),
-        }
+        ]
 
         word_list = {'AAA', 'AAB', 'ABB', 'ABA', 'ABC', 'ACB', 'ACA', 'ACC'}
 
         words = solver.find_possible_words(sequences, word_list)
 
         self.assertEqual(words, {'ABC', 'ACB'})
+
+    def test_find_possible_words_error_if_no_matching_word_for_sequence(self):
+        sequences = [
+            (1, 2, 1),
+        ]
+
+        word_list = {'CAT'}
+
+        with self.assertRaises(ValueError):
+            solver.find_possible_words(sequences, word_list)
+
+    def test_sort_sequences_0(self):
+        sequences = []
+
+        result = solver.sort_sequences(sequences)
+
+        self.assertEqual(result, [])
+
+    def test_sort_sequences_kk(self):
+        sequences = [
+            ('A', 'B')
+        ]
+
+        result = solver.sort_sequences(sequences)
+
+        self.assertEqual(result, [('A', 'B')])
+
+    def test_sort_sequences_kk_kk(self):
+        sequences = [
+            ('B', 'C'),
+            ('A', 'B'),
+        ]
+
+        result = solver.sort_sequences(sequences)
+
+        self.assertEqual(result, [('B', 'C'), ('A', 'B')])
+
+    def test_sort_sequences_uk_uk(self):
+        sequences = [
+            (1, 'C'),
+            (2, 'B'),
+        ]
+
+        result = solver.sort_sequences(sequences)
+
+        self.assertEqual(result, [(1, 'C'), (2, 'B')])
+
+    def test_sort_sequences_ku_uk(self):
+        sequences = [
+            ('A', 1),
+            (2, 'B'),
+        ]
+
+        result = solver.sort_sequences(sequences)
+
+        self.assertEqual(result, [('A', 1), (2, 'B')])
+
+    def test_sort_sequences_ku_kk(self):
+        sequences = [
+            ('A', 1),
+            ('A', 'B'),
+        ]
+
+        result = solver.sort_sequences(sequences)
+
+        self.assertEqual(result, [('A', 'B'), ('A', 1)])
+
+    def test_sort_sequences_ku_kkk(self):
+        sequences = [
+            ('A', 1),
+            ('B', 'C', 'D'),
+        ]
+
+        result = solver.sort_sequences(sequences)
+
+        self.assertEqual(result, [('B', 'C', 'D'), ('A', 1)])
+
+    def test_sort_sequences_unique_unknowns_trump(self):
+        sequences = [
+            (2, 1),
+            (2, 2),
+        ]
+
+        result = solver.sort_sequences(sequences)
+
+        self.assertEqual(result, [(2, 2), (2, 1)])
