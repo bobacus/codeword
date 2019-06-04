@@ -32,14 +32,18 @@ def solve_sequences(code_map: CodeMap, orig_sequences: list, word_lists: dict):
     if complete_and_valid:
         return code_map
 
-    sequence_word_lists = find_possible_words(list(zip(sequences, [word_lists[s] for s in orig_sequences])))
+    sequence_word_lists = []
+    for i in range(0, len(sequences)):
+        s = sequences[i]
+        sequence_word_lists.append((s, find_possible_words(s, word_lists[orig_sequences[i]])))
 
-    for sequence in sort_sequences(sequences):
+    for sequence_word_list in sorted(sequence_word_lists, key=lambda x: len(x[1])):
+        sequence = sequence_word_list[0]
         # print('sequence: %s' % str(sequence), file=stderr, flush=True)
         if is_complete(sequence):
             continue
 
-        matching_words = sequence_word_lists[sequence]
+        matching_words = sequence_word_list[1]
         # print('matching_words: %s' % matching_words, file=stderr)
         if not matching_words:
             raise ValueError('no more words - inconsistent map / set / word-list')
@@ -47,7 +51,8 @@ def solve_sequences(code_map: CodeMap, orig_sequences: list, word_lists: dict):
         for word in matching_words:
             try:
                 new_map = code_map.infer_new_key_from_word(sequence, word)
-                new_word_lists = {**sequence_word_lists, sequence: {word}}
+                new_word_lists = {swl[0]: swl[1] for swl in sequence_word_lists if swl[0] != sequence}
+                new_word_lists[sequence] = {word}
                 print('[{:<13}] '.format(word), file=stderr, end='')
                 return solve_sequences(new_map, sequences, new_word_lists)
             except ValueError:
@@ -72,22 +77,17 @@ def is_complete(sequence):
     return True
 
 
-def find_possible_words(sequence_word_list_tuples: list):
-    result = dict()
-    for t in sequence_word_list_tuples:
-        possible_words = set()
-        sequence = t[0]
-        word_list = t[1]
-        hash_fn = hash_function(sequence)
-        hash_s = hash_fn(sequence)
-        for w in word_list:
-            if hash_s == hash_fn(w):
-                if word_matches(sequence, w):
-                    possible_words.add(w)
-        if not possible_words:
-            raise ValueError('no matching words for sequence]')
-        result[sequence] = possible_words
-    return result
+def find_possible_words(sequence: tuple, word_list: set):
+    possible_words = set()
+    hash_fn = hash_function(sequence)
+    hash_s = hash_fn(sequence)
+    for w in word_list:
+        if hash_s == hash_fn(w):
+            if word_matches(sequence, w):
+                possible_words.add(w)
+    if not possible_words:
+        raise ValueError('no matching words for sequence]')
+    return possible_words
 
 
 def word_matches(sequence: tuple, word: str):

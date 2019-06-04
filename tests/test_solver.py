@@ -92,33 +92,25 @@ class TestSolver(unittest.TestCase):
             ('A', 3),
         ]
 
-        words = solver.find_possible_words(list(zip(sequences, [self.word_list for _ in sequences])))
-
-        self.assertEqual(words, {
-            sequences[0]: {'A'},
-            sequences[1]: {'AS', 'AT'},
-            sequences[2]: {'SAT'},
-            sequences[3]: {'AS', 'AT'},
-        })
+        self.assertEqual(solver.find_possible_words(sequences[0], self.word_list), {'A'})
+        self.assertEqual(solver.find_possible_words(sequences[1], self.word_list), {'AS', 'AT'})
+        self.assertEqual(solver.find_possible_words(sequences[2], self.word_list), {'SAT'})
+        self.assertEqual(solver.find_possible_words(sequences[3], self.word_list), {'AS', 'AT'})
 
     def test_find_possible_words_no_inconsistency(self):
-        sequences_word_lists = [
-            ((1, 2, 3), {'AAA', 'AAB', 'ABB', 'ABA', 'ABC', 'ACB', 'ACA', 'ACC'}),
-        ]
+        sequence =(1, 2, 3)
+        word_list = {'AAA', 'AAB', 'ABB', 'ABA', 'ABC', 'ACB', 'ACA', 'ACC'}
 
-        words = solver.find_possible_words(sequences_word_lists)
+        words = solver.find_possible_words(sequence, word_list)
 
-        self.assertEqual(words, {
-            sequences_word_lists[0][0]: {'ABC', 'ACB'},
-        })
+        self.assertEqual(words, {'ABC', 'ACB'})
 
     def test_find_possible_words_error_if_no_matching_word_for_sequence(self):
-        sequences = [
-            ((1, 2, 1), {'CAT'}),
-        ]
+        sequence = (1, 2, 1)
+        word_list = {'CAT'}
 
         with self.assertRaises(ValueError):
-            solver.find_possible_words(sequences)
+            solver.find_possible_words(sequence, word_list)
 
     def test_sort_sequences_0(self):
         sequences = []
